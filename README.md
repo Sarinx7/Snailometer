@@ -25,27 +25,32 @@ Snailometer, A web app that measures the speed of a snail either using a webcam 
 ### Technologies/Components Used
 For Software:
 - Frontend - Html, Javascript, CSS 
-- Backend - Python and Flask
-- [Libraries used]
-- [Tools used]
+- Backend - Python
+- Libraries - Flask, OpenCV 
+- Tools Used - Visual Studio Code, GitHub
 
 For Hardware:
 - a Webcam
 
 ### Implementation
 For Software:
+- The frontend is built using HTML, CSS, and JavaScript, providing a user-friendly interface.
+- The backend is developed using Python and Flask, handling video uploads and processing.
+- OpenCV is utilized for real-time video analysis and snail tracking.
+
 # Installation
 Code Editor
 Python 3.11.0
 pip install -r requirements.txt
 
 # Run
-[python app.py, Host website at localhost]
+Start the Flask server:
+    python app.py
+
+Run the application in your web browser in your localhost:
+    http://localhost:8080
 
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
 
 ![Screenshot2](Add screenshot 2 here with proper name)
 *Add caption explaining what this shows*
