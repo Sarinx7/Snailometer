@@ -142,13 +142,13 @@ def process_frame(frame, positions):
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     font_scale = 0.6
                     text_thickness = 1
-                    text_color = (0, 255, 255) 
+                    text_color = (0, 255, 0) 
                     
                     text_x = x
                     text_y = y - 10 if y > 30 else y + h + 20
                     
                     cv2.rectangle(display_frame, (text_x - 2, text_y - 15), 
-                                (text_x + len(speed_text) * 8, text_y + 2), (0, 0, 0), -1)
+                                (text_x + len(speed_text) * 11, text_y + 2), (0, 0, 0), -1)
                     cv2.putText(display_frame, speed_text, (text_x, text_y), font, font_scale, 
                                 text_color, text_thickness)
 
@@ -218,9 +218,9 @@ def process_uploaded_video(filepath):
         
         skip_frames = 6          
         if total_frames > 1000:
-            skip_frames = 10
+            skip_frames = 5
         elif total_frames < 300:
-            skip_frames = 3 
+            skip_frames = 1 
             
         app.logger.info(f"Processing every {skip_frames}th frame")
         
