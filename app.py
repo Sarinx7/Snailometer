@@ -9,76 +9,70 @@ import numpy as np
 from werkzeug.utils import secure_filename
 import threading
 import json
-from flask_cors import CORS
-import sys
-import io
-import eventlet
-
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'snailometer_scret_key'
+app.config['SECRET_KEY'] = 'snailometer_secret_key'
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  
 
+from flask_cors import CORS
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-socketio = SocketIO(app,
-                    cors_allowed_origins="*",
+socketio = SocketIO(app, 
+                    cors_allowed_origins="*", 
                     async_mode='eventlet',
-                    logger=True,
-                    engineio_logger=True
-                    )
-
+                    logger=True, 
+                    engineio_logger=True)
 
 unit_mode = "pixels"
-PIXELS_TO_MM = 0.2646
+PIXEL_TO_MM = 0.2646
 webcam_active = False
-video_cap = None 
+video_cap = None
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+import os
+import cv2
+import numpy as np
+import datetime
+import base64
+from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO, emit
+import time
+import eventlet
+import io
+import sys
 
-def calculate_speed_and_distance(position):
-
-    if len(position) < 2:
+def calculate_speed_and_distance(positions):
+    """Calculate total distance and average speed from position history"""
+    if len(positions) < 2:
         return 0, 0
-    
+
     total_distance = 0
-    if len(position) > 1:
-        for i in range(1, len(position)):
-            x1 , y1 = position[i - 1]
-            x2 , y2 = position[i]
-
-            dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    if len(positions) <= 10:
+        for i in range(1, len(positions)):
+            x1, y1, _ = positions[i - 1]
+            x2, y2, _ = positions[i]
+            dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
             total_distance += dist
-
     else:
-        sample_points = [position[0]]
+        sample_points = positions[::2]  # Take every 2nd point
         for i in range(1, len(sample_points)):
-            x1 , y1 = sample_points[i - 1]
-            x2 , y2 = sample_points[i]
-
-            dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+            x1, y1, _ = sample_points[i - 1]
+            x2, y2, _ = sample_points[i]
+            dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
             total_distance += dist
-
         total_distance *= 2
 
-    total_distance_mm = total_distance * PIXELS_TO_MM
-    total_time = position[-1][2] - position[0][2]
+    total_time = positions[-1][2] - positions[0][2]
     avg_speed = total_distance / total_time if total_time > 0 else 0
 
     return total_distance, avg_speed
 
-
 def convert_units(value):
-
-    if unit_mode == "mm":
-        return value * PIXELS_TO_MM
-    else: 
-        return value
+    return value * PIXEL_TO_MM if unit_mode == "mm" else value
 
 def process_frame(frame, positions):
-    #Process a single frame
     current_time = time.time()
     display_frame = None
     
@@ -128,7 +122,7 @@ def process_frame(frame, positions):
                         x1, y1, t1 = positions[-2]
                         x2, y2, t2 = positions[-1]
                         dt = t2 - t1
-                        dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)  # Faster than hypot
+                        dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2) 
                         if dt > 0:
                             speed = dist / dt
 
@@ -137,8 +131,8 @@ def process_frame(frame, positions):
                     dist_total, avg_speed = calculate_speed_and_distance(positions)
                     dist_converted = convert_units(dist_total)
                     avg_speed_converted = convert_units(avg_speed)
-
-                    color = (0, 255, 0)
+                    
+                    color = (0, 255, 0) 
                     thickness = 2
                     cv2.rectangle(display_frame, (x, y), (x + w, y + h), color, thickness)
                     
@@ -148,7 +142,7 @@ def process_frame(frame, positions):
                     font = cv2.FONT_HERSHEY_SIMPLEX
                     font_scale = 0.6
                     text_thickness = 1
-                    text_color = (0, 255, 255)
+                    text_color = (0, 255, 255) 
                     
                     text_x = x
                     text_y = y - 10 if y > 30 else y + h + 20
@@ -172,3 +166,235 @@ def process_frame(frame, positions):
         display_frame = frame.copy()
         
     return tracking_data, display_frame
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/upload_video', methods=['POST'])
+def upload_video():
+    
+    if 'video' not in request.files:
+        app.logger.error("No video file in request")
+        return jsonify({'error': 'No video file provided'}), 400
+    
+    file = request.files['video']
+    app.logger.info(f"File name: {file.filename}")
+    app.logger.info(f"File content type: {file.content_type}")
+    
+    if file.filename == '':
+        app.logger.error("Empty filename")
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if file:
+        try:
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            
+            app.logger.info(f"File saved to {filepath}")
+            
+            threading.Thread(target=process_uploaded_video, args=(filepath,)).start()
+            
+            return jsonify({'message': 'Video uploaded successfully', 'filename': filename})
+        except Exception as e:
+            app.logger.error(f"Error saving file: {str(e)}")
+            return jsonify({'error': f'Error uploading file: {str(e)}'}), 500
+
+def process_uploaded_video(filepath):
+    app.logger.info(f"Starting to process video: {filepath}")
+    
+    try:
+        cap = cv2.VideoCapture(filepath)
+        if not cap.isOpened():
+            app.logger.error(f"Could not open video file: {filepath}")
+            socketio.emit('video_error', {'error': 'Could not open video file'})
+            return
+        
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        app.logger.info(f"Video opened successfully: {fps} FPS, {total_frames} frames")
+        
+        skip_frames = 6          
+        if total_frames > 1000:
+            skip_frames = 10
+        elif total_frames < 300:
+            skip_frames = 3 
+            
+        app.logger.info(f"Processing every {skip_frames}th frame")
+        
+        socketio.emit('video_processing_started', {
+            'filepath': filepath,
+            'total_frames': total_frames,
+            'fps': fps
+        })
+        
+        positions = []
+        frame_count = 0
+        processed_count = 0
+        
+        scale_factor = 0.5 
+        
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+                
+            frame_count += 1
+            
+            if frame_count % skip_frames == 0:
+                processed_count += 1
+                
+                h, w = frame.shape[:2]
+                resized_frame = cv2.resize(frame, (int(w * scale_factor), int(h * scale_factor)))
+                
+                tracking_data, display_frame = process_frame(resized_frame, positions)
+                
+                display_frame = cv2.resize(display_frame, (w, h))
+                
+                _, buffer = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 60])
+                frame_base64 = base64.b64encode(buffer).decode('utf-8')
+                
+                app.logger.debug(f"Emitting frame {frame_count}")
+                socketio.emit('video_frame', {
+                    'frame': frame_base64,
+                    'tracking_data': tracking_data,
+                    'progress': {
+                        'frame': frame_count,
+                        'total': total_frames,
+                        'percent': round((frame_count / total_frames) * 100, 1)
+                    }
+                })
+                
+                time.sleep(0.05) 
+        
+        cap.release()
+        app.logger.info(f"Video processing complete: {processed_count} frames processed")
+        socketio.emit('video_complete', {
+            'message': 'Video processing complete',
+            'filepath': filepath,
+            'frames_processed': processed_count,
+            'total_frames': total_frames
+        })
+    
+    except Exception as e:
+        app.logger.error(f"Error processing video: {str(e)}")
+        socketio.emit('video_error', {'error': f'Error processing video: {str(e)}'})
+
+@socketio.on('start_webcam')
+def handle_start_webcam(data=None):
+    """Start webcam tracking"""
+    global webcam_active, video_cap
+    
+    webcam_id = 0
+    app.logger.info(f"Starting webcam with ID: {webcam_id}")
+    
+    video_cap = cv2.VideoCapture(webcam_id)
+    if not video_cap.isOpened():
+        emit('webcam_error', {'error': 'Could not access webcam'})
+        return
+    
+    webcam_active = True
+    threading.Thread(target=webcam_loop).start()
+    emit('webcam_started', {'message': 'Webcam started successfully'})
+
+def webcam_loop():
+    """Main webcam processing loop"""
+    global webcam_active, video_cap
+    positions = []
+    
+    while webcam_active and video_cap.isOpened():
+        ret, frame = video_cap.read()
+        if not ret:
+            break
+            
+        frame = cv2.flip(frame, 1)  
+        tracking_data, display_frame = process_frame(frame, positions)
+        
+        _, buffer = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        
+        socketio.emit('webcam_frame', {
+            'frame': frame_base64,
+            'tracking_data': tracking_data
+        })
+        
+        time.sleep(0.05) 
+
+@socketio.on('stop_webcam')
+def handle_stop_webcam():
+    """Stop webcam tracking"""
+    global webcam_active, video_cap
+    
+    webcam_active = False
+    if video_cap:
+        video_cap.release()
+        video_cap = None
+    
+    emit('webcam_stopped', {'message': 'Webcam stopped'})
+
+@socketio.on('change_unit')
+def handle_change_unit(data):
+    """Toggle between pixels and mm units"""
+    global unit_mode
+    
+    new_unit = data.get('unit', 'pixels')
+    if new_unit in ['pixels', 'mm']:
+        unit_mode = new_unit
+        emit('unit_changed', {'unit': unit_mode})
+    else:
+        emit('unit_error', {'error': 'Invalid unit'})
+
+@socketio.on('replay_video')
+def handle_replay_video(data):
+    """Replay the last uploaded video"""
+    filepath = data.get('filepath')
+    
+    app.logger.info(f"Received replay_video request with filepath: {filepath}")
+    
+    if not filepath:
+        try:
+            files = os.listdir(app.config['UPLOAD_FOLDER'])
+            if files:
+                # Get the most recently modified file
+                files.sort(key=lambda x: os.path.getmtime(os.path.join(app.config['UPLOAD_FOLDER'], x)), reverse=True)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], files[0])
+                app.logger.info(f"Replaying most recent video: {filepath}")
+            else:
+                app.logger.error("No videos found in uploads folder")
+                emit('video_error', {'error': 'No videos available to replay'})
+                return
+        except Exception as e:
+            app.logger.error(f"Error finding video to replay: {str(e)}")
+            emit('video_error', {'error': f'Error finding video to replay: {str(e)}'})
+            return
+    else:
+        if not os.path.isabs(filepath):
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filepath)
+    
+    if not os.path.exists(filepath):
+        app.logger.error(f"Video file not found: {filepath}")
+        emit('video_error', {'error': f'Video file not found: {filepath}'})
+        return
+    
+    app.logger.info(f"Starting replay of video: {filepath}")
+    
+    threading.Thread(target=process_uploaded_video, args=(filepath,)).start()
+    emit('replay_started', {'message': 'Video replay started', 'filepath': filepath})
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    return jsonify({'status': 'healthy', 'unit_mode': unit_mode})
+
+if __name__ == '__main__':
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    
+    import eventlet
+    eventlet.monkey_patch()
+    
+    port = 8080
+    print(f"Starting server on port {port}")
+    socketio.run(app, debug=True, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
