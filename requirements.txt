@@ -5,3 +5,4 @@ numpy==1.24.3
 Werkzeug==2.3.7
 python-socketio==5.9.0
 eventlet==0.33.3
+Flask-CORS==4.0.0
