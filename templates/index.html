@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snailometer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="../static/css/styles.css">
 </head>
 
 <body>
-    <img id="intro-logo" src="{{ url_for('static', filename='images/loading_image.png') }}" alt="Logo">
+    <img id="intro-logo" src="../static/images/loading_image.png" alt="Logo">
 
     <div id="landing-content">
         <div id="spacer-top"></div>
         <div id="app-title">snailometer</div>
-        <img id="snail-image" src="{{ url_for('static', filename='images/snail.png') }}" alt="Snail" />
+        <img id="snail-image" src="../static/images/snail.png" alt="Snail" />
         <div id="spacer-middle"></div>
         <div id="spacer-bottom"></div>
         <div id="tagline">finally an app brave enough to ask: how slow is too slow?</div>
@@ -23,7 +23,7 @@
     <div id="main-content" style="display:none;">
         <div id="main-container">
             <div id="main-title">snailometer</div>
-            <img id="main-snail" src="{{ url_for('static', filename='images/snail.png') }}" alt="Snail" />
+            <img id="main-snail" src="../static/images/snail.png" alt="Snail" />
             <div id="subtitle">The ultimate tool for tracking microscopic movement... at glacial speed.</div>
             
             <div class="button-container">
@@ -44,7 +44,7 @@
             </div>
             
             <div id="video-container">
-                <img id="video-feed" src="{{ url_for('static', filename='images/snail.png') }}" alt="Video Feed" />
+                <img id="video-feed" src="../static/images/snail.png" alt="Video Feed" />
                 <canvas id="overlay-canvas"></canvas>
             </div>
             
@@ -79,6 +79,6 @@
         window.SERVER_URL = window.location.protocol + '//' + window.location.hostname + ':' + window.SERVER_PORT;
         console.log('Server URL set to:', window.SERVER_URL);
     </script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="../static/js/script.js"></script>
 </body>
 </html>
