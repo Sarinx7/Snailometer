@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snailometer</title>
+    <link rel="stylesheet" href="./static/css/styles.css">
+</head>
+
+<body>
+    <img id="intro-logo" src="./static/images/loading_image.png" alt="Logo">
+
+    <div id="landing-content">
+        <div id="app-title">snailometer</div>
+        <img id="snail-image" src="./static/images/snail.png" alt="Snail" />
+        <div id="tagline">finally an app brave enough to ask: how slow is too slow?</div>
+        <div id="start-button">start crawling</div>
+    </div>
+
+    <div id="main-content" style="display:none;">
+        <div id="main-container">
+            <div id="main-title">snailometer</div>
+            <img id="main-snail" src="./static/images/snail.png" alt="Snail" />
+            <div id="subtitle">The ultimate tool for tracking microscopic movement... at glacial speed.</div>
+            
+            <div class="button-container">
+                <div id="upload-video" class="main-action">upload video</div>
+                <div id="use-webcam" class="main-action">use webcam</div>
+                <div id="change-unit" class="main-action">pixel per second</div>
+            </div>
+
+            <div id="warning">⚠️ Warning: Watching snail speed in real-time may cause time dilation.</div>
+        </div>
+    </div>
+
+    <div id="tracking-content" style="display:none;">
+        <div id="tracking-container">
+            <div id="tracking-header">
+                <img id="tracking-snail-img" src="./static/images/snail.png" alt="Tracking Snail" height="64">
+                <div id="tracking-title">snailometer</div>
+                <div id="back-button" class="control-button">back</div>
+            </div>
+
+            <div id="video-container">
+                <img id="video-feed" src="./static/images/snail.png" alt="Video Feed" />
+                <canvas id="overlay-canvas"></canvas>
+            </div>
+            
+            <div id="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">Current Speed</span>
+                    <span id="current-speed" class="stat-value">0 px/s</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Distance (Approx)</span>
+                    <span id="total-distance" class="stat-value">0 px</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Average Speed</span>
+                    <span id="avg-speed" class="stat-value">0 px/s</span>
+                </div>
+            </div>
+            
+            <div id="tracking-controls">
+                <div id="stop-tracking" class="control-button">stop tracking</div>
+                <div id="toggle-unit" class="control-button">switch to mm</div>
+                <div id="replay-video" class="control-button" style="display: none;">replay video</div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="video-file-input" accept="video/*" style="display: none;">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        window.SERVER_PORT = 8080;
+        window.SERVER_URL = "https://srv-d2b8nier433s739ifub0";
+        console.log('Server URL set to:', window.SERVER_URL);
+    </script>
+    <script src="./static/js/script.js"></script>
+</body>
+</html>
+</body>
+</html>
