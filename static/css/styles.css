@@ -34,3 +34,59 @@ img#intro-logo {
 }
 
 
+#landing-content {
+    display: none;
+    text-align: center;
+    margin: 0;
+}
+
+#spacer-top {
+    height: 40px;
+}
+
+#spacer-middle {
+    height: 30px;
+}
+
+#spacer-bottom {
+    height: 30px;
+}
+
+#app-title {
+    font-family: 'VT323', monospace;
+    font-size: 96px;
+    color: #bea1cc;
+    margin :20px 0;
+}
+
+#tagline {
+    font-family: 'VT323', monospace;
+    font-size: 36px;
+    color: #fff;
+    margin: 30px auto 0 auto;
+    background-color: #bea1cc;
+    border-radius: 10px;
+    padding: 10px 40px;
+    display: inline-block;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#start-button {
+    font-family: 'VT323', monospace;
+    font-size: 36px;
+    color: #fff;
+    margin: 30px auto 0 auto;
+    background-color: #bea1cc;
+    border-radius: 10px;
+    padding: 10px 40px;
+    display: inline-block;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#start-button:hover {
+    background-color: #fff;
+    color: #bea1cc;
+}
+
