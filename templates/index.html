@@ -36,7 +36,49 @@
         </div>
     </div>
 
+    <div id="tracking-content" style="display:none;">
+        <div id="tracking-container">
+            <div id="tracking-header">
+                <div id="tracking-title">snailometer</div>
+                <div id="back-button" class="control-button">back</div>
+            </div>
+            
+            <div id="video-container">
+                <img id="video-feed" src="{{ url_for('static', filename='images/snail.png') }}" alt="Video Feed" />
+                <canvas id="overlay-canvas"></canvas>
+            </div>
+            
+            <div id="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">Current Speed</span>
+                    <span id="current-speed" class="stat-value">0 px/s</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Distance</span>
+                    <span id="total-distance" class="stat-value">0 px</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Average Speed</span>
+                    <span id="avg-speed" class="stat-value">0 px/s</span>
+                </div>
+            </div>
+            
+            <div id="tracking-controls">
+                <div id="stop-tracking" class="control-button">stop tracking</div>
+                <div id="toggle-unit" class="control-button">switch to mm</div>
+                <div id="replay-video" class="control-button" style="display: none;">replay video</div>
+            </div>
+        </div>
+    </div>
 
+    <input type="file" id="video-file-input" accept="video/*" style="display: none;">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        window.SERVER_PORT = 8080;
+        window.SERVER_URL = window.location.protocol + '//' + window.location.hostname + ':' + window.SERVER_PORT;
+        console.log('Server URL set to:', window.SERVER_URL);
+    </script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
