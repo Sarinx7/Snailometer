@@ -62,14 +62,8 @@ img#intro-logo {
 #tagline {
     font-family: 'VT323', monospace;
     font-size: 36px;
-    color: #fff;
-    margin: 30px auto 0 auto;
-    background-color: #bea1cc;
-    border-radius: 10px;
-    padding: 10px 40px;
-    display: inline-block;
-    cursor: pointer;
-    transition: background 0.2s;
+    color: #000;
+    margin: 20px 0;
 }
 
 #start-button {
@@ -88,5 +82,23 @@ img#intro-logo {
 #start-button:hover {
     background-color: #fff;
     color: #bea1cc;
+}
+
+
+#main-content {
+    width: 100%;
+    background: #c5e37f;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    box-sizing: border-box;
+
+}
+
+#main-container {
+    text-align: center;
+    width: 100%;
+    margin-top: 50px;
 }
 
