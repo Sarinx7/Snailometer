@@ -43,7 +43,7 @@ img#intro-logo {
 }
 
 #snail-image {
-    width: 300px;
+    width: 200px;
     height: auto;
     margin: 20px 0;
 }
@@ -182,8 +182,8 @@ img#intro-logo {
 
 #tracking-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0px;
     margin-bottom: 20px;
 }
 
@@ -192,6 +192,27 @@ img#intro-logo {
     font-size: 48px;
     color: #BEA1CC;
     text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+#tracking-snail {
+    width: 250px;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+#tracking-snail-img {
+    height: 64px;
+    width: auto;
+    vertical-align: middle;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+#back-button{
+    margin-left: 800px;
 }
 
 #video-container {
