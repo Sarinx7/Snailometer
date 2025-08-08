@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323');
+
+body {
+    font-family: 'VT323', monospace;
+    background-color: #c5e37f;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+img#intro-logo {
+    width: 300px;
+    height: 250px;
+    display: block;
+    margin: 0;
+    padding: 0;
+    animation: rotate360 5s linear;
+}
+
+@keyframes rotate360 {
+    from {
+        transform: rotate(540deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
