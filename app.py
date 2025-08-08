@@ -98,69 +98,63 @@ def process_frame(frame, positions):
 
     if contours:
         min_area = 100
-        valid_contours = [c for c in contours if cv2.contourArea(c) > min_area]
-        
-        if valid_contours:
-            largest = max(valid_contours, key=cv2.contourArea)
-            area = cv2.contourArea(largest)
-            
-            if area > min_area and area < (frame.shape[0] * frame.shape[1] * 0.5):  # Not too big
-                display_frame = frame.copy()
-                
-                x, y, w, h = cv2.boundingRect(largest)
-                M = cv2.moments(largest)
-
-                if M["m00"] != 0:
-                    cx = int(M["m10"] / M["m00"])
-                    cy = int(M["m01"] / M["m00"])
-                    positions.append((cx, cy, current_time))
-
-                    if len(positions) > 30:
-                        positions.pop(0)
-
-                    if len(positions) >= 2:
-                        x1, y1, t1 = positions[-2]
-                        x2, y2, t2 = positions[-1]
-                        dt = t2 - t1
-                        dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2) 
-                        if dt > 0:
-                            speed = dist / dt
-
-                    speed_converted = convert_units(speed)
-                    
-                    dist_total, avg_speed = calculate_speed_and_distance(positions)
-                    dist_converted = convert_units(dist_total)
-                    avg_speed_converted = convert_units(avg_speed)
-                    
-                    color = (0, 255, 0) 
-                    thickness = 2
-                    cv2.rectangle(display_frame, (x, y), (x + w, y + h), color, thickness)
-                    
-                    unit_text = "px/s" if unit_mode == "pixels" else "mm/s"
-                    speed_text = f"Snail: {round(speed_converted, 1)} {unit_text}"
-            
-                    font = cv2.FONT_HERSHEY_SIMPLEX
-                    font_scale = 0.6
-                    text_thickness = 1
-                    text_color = (0, 255, 0) 
-                    
-                    text_x = x
-                    text_y = y - 10 if y > 30 else y + h + 20
-                    
-                    cv2.rectangle(display_frame, (text_x - 2, text_y - 15), 
-                                (text_x + len(speed_text) * 11, text_y + 2), (0, 0, 0), -1)
-                    cv2.putText(display_frame, speed_text, (text_x, text_y), font, font_scale, 
-                                text_color, text_thickness)
-
-                    tracking_data = {
-                        'speed': round(speed_converted, 2),
-                        'total_distance': round(dist_converted, 2),
-                        'avg_speed': round(avg_speed_converted, 2),
-                        'unit': unit_mode,
-                        'detected': True,
-                        'position': {'x': cx, 'y': cy},
-                        'bounding_box': {'x': x, 'y': y, 'w': w, 'h': h}
-                    }
+        max_area = frame.shape[0] * frame.shape[1] * 0.5
+        snail_candidates = []
+        for c in contours:
+            area = cv2.contourArea(c)
+            if area < min_area or area > max_area:
+                continue
+            x, y, w, h = cv2.boundingRect(c)
+            aspect_ratio = max(w / h, h / w) if h > 0 and w > 0 else 0
+            # Snails are usually elongated, not round. Accept aspect ratios between 1.2 and 4.0
+            if 1.2 <= aspect_ratio <= 4.0:
+                # Optional: add color filtering here if needed
+                snail_candidates.append((c, area, x, y, w, h))
+        if snail_candidates:
+            # Pick the largest snail-like contour
+            snail_candidates.sort(key=lambda tup: tup[1], reverse=True)
+            c, area, x, y, w, h = snail_candidates[0]
+            display_frame = frame.copy()
+            M = cv2.moments(c)
+            if M["m00"] != 0:
+                cx = int(M["m10"] / M["m00"])
+                cy = int(M["m01"] / M["m00"])
+                positions.append((cx, cy, current_time))
+                if len(positions) > 30:
+                    positions.pop(0)
+                if len(positions) >= 2:
+                    x1, y1, t1 = positions[-2]
+                    x2, y2, t2 = positions[-1]
+                    dt = t2 - t1
+                    dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+                    if dt > 0:
+                        speed = dist / dt
+                speed_converted = convert_units(speed)
+                dist_total, avg_speed = calculate_speed_and_distance(positions)
+                dist_converted = convert_units(dist_total)
+                avg_speed_converted = convert_units(avg_speed)
+                color = (0, 255, 0)
+                thickness = 2
+                cv2.rectangle(display_frame, (x, y), (x + w, y + h), color, thickness)
+                unit_text = "px/s" if unit_mode == "pixels" else "mm/s"
+                speed_text = f"Snail: {round(speed_converted, 1)} {unit_text}"
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 0.6
+                text_thickness = 1
+                text_color = (0, 255, 0)
+                text_x = x
+                text_y = y - 10 if y > 30 else y + h + 20
+                cv2.rectangle(display_frame, (text_x - 2, text_y - 15), (text_x + len(speed_text) * 11, text_y + 2), (0, 0, 0), -1)
+                cv2.putText(display_frame, speed_text, (text_x, text_y), font, font_scale, text_color, text_thickness)
+                tracking_data = {
+                    'speed': round(speed_converted, 2),
+                    'total_distance': round(dist_converted, 2),
+                    'avg_speed': round(avg_speed_converted, 2),
+                    'unit': unit_mode,
+                    'detected': True,
+                    'position': {'x': cx, 'y': cy},
+                    'bounding_box': {'x': x, 'y': y, 'w': w, 'h': h}
+                }
     
     if display_frame is None:
         display_frame = frame.copy()
