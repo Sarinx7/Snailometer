@@ -1,7 +1,6 @@
 
 const socketUrl = window.SERVER_URL || (window.location.protocol + '//' + window.location.hostname + ':8080');
 
-console.log('Connecting Socket.IO to:', socketUrl);
 
 
 const socket = io(socketUrl, {
@@ -35,7 +34,7 @@ socket.on('disconnect', (reason) => {
     }
 });
 
-let currentUnit = 'pixels';
+let currentUnit = 'mm';
 let isTracking = false;
 let trackingMode = null; 
 let lastUploadedVideoPath = null; 
@@ -239,7 +238,7 @@ socket.on('video_frame', function(data) {
 
 socket.on('video_complete', function(data) {
     showStatusMessage(`Video analysis complete! Processed ${data.frames_processed} frames.`, 'success');
-    
+    currentSpeedEl.textContent = '0 ' + (currentUnit === 'pixels' ? 'px/s' : 'mm/s');
     if (replayVideoBtn) {
         replayVideoBtn.classList.add('highlight-button');
         setTimeout(() => {
@@ -273,7 +272,6 @@ function updateVideoFeed(frameData) {
     
     if (!updateVideoFeed.hasReceivedFrame) {
         updateVideoFeed.hasReceivedFrame = true;
-        console.log('First video frame received and displayed');
         showStatusMessage('Video feed connected!', 'success');
     }
 }
