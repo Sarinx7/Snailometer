@@ -1,4 +1,3 @@
-
 const socketUrl = window.SERVER_URL || (window.location.protocol + '//' + window.location.hostname + ':8080');
 
 
@@ -119,7 +118,17 @@ function uploadVideo(file) {
 }
 
 useWebcamBtn.onclick = function() {
-    startWebcamTracking();
+    // Ask for webcam permission before starting tracking
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            // Permission granted, stop the stream immediately (we just wanted permission)
+            stream.getTracks().forEach(track => track.stop());
+            startWebcamTracking();
+        })
+        .catch(function(err) {
+            showStatusMessage('Could not access webcam: ' + err.message, 'error');
+            console.error('Webcam access error:', err);
+        });
 };
 
 function startWebcamTracking() {
