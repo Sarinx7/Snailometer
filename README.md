@@ -52,19 +52,15 @@ Run the application in your web browser in your localhost:
 
 
 
-![Screenshot2](Add screenshot 2 here with proper name)
+![Screenshot2](https://drive.google.com/file/d/1xA01PE1PxqqWmquK7Ua31lolAX4_Iuwz/view?usp=sharing)
 *Add caption explaining what this shows*
 
-![Screenshot3](Add screenshot 3 here with proper name)
+![Screenshot3](https://drive.google.com/file/d/1Fay1YvClMJLaduk4GvWpzUVY0VNWUIMI/view?usp=sharing)
 *Add caption explaining what this shows*
-
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
 
 ### Project Demo
 # Video
-[Add your demo video link here]
+https://drive.google.com/file/d/1MKJLGEhnMD2ZAB-2DxzbE-od6RmoEwnc/view?usp=sharing
 *Explain what the video demonstrates*
 
 # Additional Demos
