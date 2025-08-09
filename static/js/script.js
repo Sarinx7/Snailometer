@@ -118,15 +118,13 @@ function uploadVideo(file) {
 }
 
 useWebcamBtn.onclick = function() {
-    // Ask for webcam permission before starting tracking
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(function(stream) {
-            // Permission granted, stop the stream immediately (we just wanted permission)
             stream.getTracks().forEach(track => track.stop());
             startWebcamTracking();
         })
         .catch(function(err) {
-            showStatusMessage('Could not access webcam: ' + err.message, 'error');
+            showStatusMessage('Could not access webcam: ' + err.name + ' - ' + err.message, 'error');
             console.error('Webcam access error:', err);
         });
 };
@@ -327,3 +325,24 @@ function showStatusMessage(message, type) {
 document.body.style.overflow = 'hidden';
 
 updateControlButtons();
+
+function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        const videoEl = document.querySelector("video");
+        if (videoEl) {
+            videoEl.srcObject = stream;
+            videoEl.play();
+        }
+    })
+    .catch(err => {
+        console.error("Error accessing webcam:", err);
+        alert("Could not access webcam. Please allow camera permissions in your browser settings.");
+    });
+}
+
+// Only request camera when user clicks button
+const startBtn = document.getElementById("startBtn");
+if (startBtn) {
+    startBtn.addEventListener("click", startCamera);
+}
