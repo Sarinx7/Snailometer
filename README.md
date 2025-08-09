@@ -60,11 +60,10 @@ Run the application in your web browser in your localhost:
 
 ### Project Demo
 # Video
-https://drive.google.com/file/d/1MKJLGEhnMD2ZAB-2DxzbE-od6RmoEwnc/view?usp=sharing
-*Explain what the video demonstrates*
+https://drive.google.com/file/d/1WheqerKrlnZMg7gl2bTsY8FGaZbNi1ik/view?usp=sharing
 
 # Additional Demos
-[Add any extra demo materials/links]
+[Website Demo](https://sarinx7.github.io/Snailometer/)
 
 ## Team Contributions
 - [Ishaani Raj Padickal]: [Website design and Frontend]
